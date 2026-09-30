@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#0f5cff"/>
+  <title>Physics Bagrut AI</title>
+  <style>
+    :root{--blue:#0f5cff;--ink:#0f172a;--muted:#64748b;--line:#dbe4f0;--bg:#f5f8ff;--card:#fff}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,"Noto Sans Hebrew",sans-serif;background:linear-gradient(180deg,#eef4ff 0,#f8fafc 42%);color:var(--ink)}
+    .wrap{max-width:980px;margin:auto;padding:28px 16px 64px}.hero{text-align:center;padding:18px 0 22px}.logo{width:60px;height:60px;border-radius:18px;background:var(--blue);color:#fff;display:grid;place-items:center;margin:auto;font-size:30px;box-shadow:0 12px 30px #0f5cff33}.hero h1{margin:14px 0 7px;font-size:clamp(28px,5vw,44px)}.hero p{margin:0;color:var(--muted);font-size:17px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 14px 40px #1e3a5f12;padding:18px;margin-bottom:18px}
+    textarea{width:100%;min-height:130px;resize:vertical;border:1px solid var(--line);border-radius:16px;padding:15px;font:inherit;font-size:17px;outline:none} textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px #0f5cff12}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}.upload{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 13px;cursor:pointer;background:#fff}.upload input{display:none}
+    button{border:0;border-radius:13px;padding:11px 18px;font:inherit;font-weight:700;cursor:pointer}.primary{background:var(--blue);color:#fff;min-width:150px}.secondary{background:#eef4ff;color:#1746a2}.primary:disabled{opacity:.55;cursor:not-allowed}
+    .preview{display:none;margin-top:12px;position:relative}.preview img{max-height:300px;max-width:100%;border-radius:14px;border:1px solid var(--line)}.remove{position:absolute;top:8px;right:8px;background:#fff;color:#111;padding:6px 9px;border-radius:10px}
+    .loader{display:none;text-align:center;padding:32px}.spinner{width:38px;height:38px;border:4px solid #dce7ff;border-top-color:var(--blue);border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    #answer{display:none}.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.pill{display:inline-block;background:#eef4ff;color:#1746a2;border-radius:999px;padding:7px 11px;font-weight:700}.muted{color:var(--muted)}
+    h2{font-size:24px;margin:8px 0 14px} h3{font-size:20px;margin:18px 0 8px}.box{border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0;background:#fbfdff}.step{padding:9px 0;border-bottom:1px dashed #d8e1ec}.step:last-child{border-bottom:0}
+    .eq{direction:ltr;text-align:left;background:#f7f9fc;border:1px solid #e6ebf2;padding:10px 12px;border-radius:10px;margin:7px 0;font-family:Cambria,"Times New Roman",serif;font-size:18px;overflow:auto}.final{border-right:5px solid var(--blue);background:#eff5ff;font-weight:700;font-size:18px}
+    .diagram{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:8px;margin-top:10px}.diagram svg{width:100%;min-width:420px;height:auto;display:block}.error{display:none;background:#fff0f0;color:#a11212;border:1px solid #ffd2d2;border-radius:14px;padding:12px;margin-top:12px}
+    .small{font-size:13px;color:var(--muted)} @media(max-width:600px){.card{padding:14px}.wrap{padding-top:14px}.primary{width:100%}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero"><div class="logo">∑</div><h1>Physics Bagrut AI</h1><p>שולחים שאלה — מקבלים פתרון מסודר כמו בבגרות, כולל תרשימים.</p></div>
+
+  <div class="card">
+    <textarea id="question" placeholder="כתוב כאן את השאלה, למשל: גוף שמסתו 2 ק״ג מונח על משטח משופע...&#10;אפשר גם פשוט להעלות צילום של השאלה."></textarea>
+    <div class="row">
+      <label class="upload">📷 העלאת תמונה<input id="image" type="file" accept="image/png,image/jpeg,image/webp"/></label>
+      <button class="secondary" id="example">נסה דוגמה</button>
+      <label class="small"><input type="checkbox" id="short"/> פתרון קצר</label>
+      <button class="primary" id="solve">פתור כמו בבגרות</button>
+    </div>
+    <div class="preview" id="preview"><button class="remove" id="remove">✕</button><img id="previewImg"/></div>
+    <div class="error" id="error"></div>
+  </div>
+
+  <div class="card loader" id="loader"><div class="spinner"></div><b>קורא את השאלה, בונה תרשים ובודק את החישוב…</b></div>
+
+  <div id="answer">
+    <div class="card">
+      <div class="topline"><span class="pill" id="topic"></span><span class="muted" id="request"></span></div>
+      <div id="givens"></div><div id="note"></div>
+    </div>
+    <div id="sections"></div>
+    <div class="card" id="visualCard" style="display:none"><h2>תרשימים</h2><div id="diagrams"></div></div>
+    <div class="card" id="checksCard" style="display:none"><h2>בדיקה לפני הגשה</h2><div id="checks"></div></div>
+  </div>
+</div>
+<script>
+const q=document.getElementById('question'), image=document.getElementById('image'), solve=document.getElementById('solve');
+const preview=document.getElementById('preview'), previewImg=document.getElementById('previewImg'), loader=document.getElementById('loader'), error=document.getElementById('error'), answer=document.getElementById('answer');
+let imageDataUrl='';
+
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function cleanSvg(svg=''){
+  if(!svg.trim().startsWith('<svg')) return '';
+  return svg.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi,'').replace(/\son\w+="[^"]*"/gi,'').replace(/\son\w+='[^']*'/gi,'').replace(/xlink:href="[^"]*"/gi,'').replace(/href="[^"]*"/gi,'');
+}
+function list(title,items){
+  if(!items||!items.length)return '';
+  return '<div class="box"><h3>'+esc(title)+'</h3>'+items.map(x=>'<div class="step">'+esc(x)+'</div>').join('')+'</div>';
+}
+image.onchange=()=>{
+  const f=image.files[0]; if(!f)return;
+  if(f.size>8*1024*1024){showError('התמונה גדולה מדי. עד 8MB.');image.value='';return;}
+  const r=new FileReader(); r.onload=()=>{imageDataUrl=r.result;previewImg.src=imageDataUrl;preview.style.display='block'}; r.readAsDataURL(f);
+};
+document.getElementById('remove').onclick=()=>{image.value='';imageDataUrl='';preview.style.display='none'};
+document.getElementById('example').onclick=()=>{q.value='גוף שמסתו 2 ק״ג מונח על משטח אופקי. מופעל עליו כוח אופקי של 10 N. מקדם החיכוך הקינטי הוא 0.2. חשב את תאוצת הגוף וצייר תרשים כוחות.'};
+function showError(msg){error.textContent=msg;error.style.display='block'}
+function setLoading(v){loader.style.display=v?'block':'none';solve.disabled=v;solve.textContent=v?'פותר…':'פתור כמו בבגרות'}
+function render(r){
+  document.getElementById('topic').textContent=r.topic||'פיזיקה';
+  document.getElementById('request').textContent=r.request||'';
+  document.getElementById('givens').innerHTML=list('נתונים',r.givens)+list('הנחות',r.assumptions);
+  document.getElementById('note').innerHTML=r.note?'<div class="box"><b>הערה:</b> '+esc(r.note)+'</div>':'';
+  const sections=document.getElementById('sections');sections.innerHTML='';
+  (r.sections||[]).forEach((s,i)=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<h2>'+esc(s.title||('סעיף '+(i+1)))+'</h2>'+
+      (s.principle?'<div class="box"><b>העיקרון:</b> '+esc(s.principle)+'</div>':'')+
+      list('דרך הפתרון',s.steps)+
+      ((s.equations||[]).length?'<h3>משוואות</h3>'+s.equations.map(x=>'<div class="eq">'+esc(x)+'</div>').join(''):'')+
+      ((s.substitution||[]).length?'<h3>הצבה</h3>'+s.substitution.map(x=>'<div class="eq">'+esc(x)+'</div>').join(''):'')+
+      (s.answer?'<div class="box final">תשובה סופית: '+esc(s.answer)+'</div>':'');
+    sections.appendChild(c);
+  });
+  const dg=cleanSvg(r.diagramSvg||''), sk=cleanSvg(r.sketchSvg||'');
+  document.getElementById('visualCard').style.display=(dg||sk)?'block':'none';
+  document.getElementById('diagrams').innerHTML=(dg?'<h3>תרשים כוחות</h3><div class="diagram">'+dg+'</div>':'')+(sk?'<h3>שרטוט עזר</h3><div class="diagram">'+sk+'</div>':'');
+  document.getElementById('checksCard').style.display=(r.checks||[]).length?'block':'none';
+  document.getElementById('checks').innerHTML=(r.checks||[]).map(x=>'<div class="step">✓ '+esc(x)+'</div>').join('');
+  answer.style.display='block'; answer.scrollIntoView({behavior:'smooth',block:'start'});
+}
+solve.onclick=async()=>{
+  error.style.display='none';answer.style.display='none';
+  if(!q.value.trim()&&!imageDataUrl)return showError('כתוב שאלה או העלה תמונה.');
+  setLoading(true);
+  try{
+    const res=await fetch('/api/solve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q.value,imageDataUrl,detail:document.getElementById('short').checked?'short':'full'})});
+    const data=await res.json(); if(!res.ok)throw new Error(data.error||'שגיאה');
+    render(data.result);
+  }catch(e){showError(e.message||'אירעה שגיאה.')}
+  finally{setLoading(false)}
+};
+</script>
+</body>
+</html>
