@@ -1,36 +1,125 @@
 <!doctype html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="theme-color" content="#0f5cff"/>
-  <title>Physics Bagrut AI</title>
-  <style>
-    :root{--blue:#0f5cff;--ink:#0f172a;--muted:#64748b;--line:#dbe4f0;--bg:#f5f8ff;--card:#fff}
-    *{box-sizing:border-box} body{margin:0;font-family:Arial,"Noto Sans Hebrew",sans-serif;background:linear-gradient(180deg,#eef4ff 0,#f8fafc 42%);color:var(--ink)}
-    .wrap{max-width:980px;margin:auto;padding:28px 16px 64px}.hero{text-align:center;padding:18px 0 22px}.logo{width:60px;height:60px;border-radius:18px;background:var(--blue);color:#fff;display:grid;place-items:center;margin:auto;font-size:30px;box-shadow:0 12px 30px #0f5cff33}.hero h1{margin:14px 0 7px;font-size:clamp(28px,5vw,44px)}.hero p{margin:0;color:var(--muted);font-size:17px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:0 14px 40px #1e3a5f12;padding:18px;margin-bottom:18px}
-    textarea{width:100%;min-height:130px;resize:vertical;border:1px solid var(--line);border-radius:16px;padding:15px;font:inherit;font-size:17px;outline:none} textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px #0f5cff12}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}.upload{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 13px;cursor:pointer;background:#fff}.upload input{display:none}
-    button{border:0;border-radius:13px;padding:11px 18px;font:inherit;font-weight:700;cursor:pointer}.primary{background:var(--blue);color:#fff;min-width:150px}.secondary{background:#eef4ff;color:#1746a2}.primary:disabled{opacity:.55;cursor:not-allowed}
-    .preview{display:none;margin-top:12px;position:relative}.preview img{max-height:300px;max-width:100%;border-radius:14px;border:1px solid var(--line)}.remove{position:absolute;top:8px;right:8px;background:#fff;color:#111;padding:6px 9px;border-radius:10px}
-    .loader{display:none;text-align:center;padding:32px}.spinner{width:38px;height:38px;border:4px solid #dce7ff;border-top-color:var(--blue);border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-    #answer{display:none}.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.pill{display:inline-block;background:#eef4ff;color:#1746a2;border-radius:999px;padding:7px 11px;font-weight:700}.muted{color:var(--muted)}
-    h2{font-size:24px;margin:8px 0 14px} h3{font-size:20px;margin:18px 0 8px}.box{border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0;background:#fbfdff}.step{padding:9px 0;border-bottom:1px dashed #d8e1ec}.step:last-child{border-bottom:0}
-    .eq{direction:ltr;text-align:left;background:#f7f9fc;border:1px solid #e6ebf2;padding:10px 12px;border-radius:10px;margin:7px 0;font-family:Cambria,"Times New Roman",serif;font-size:18px;overflow:auto}.final{border-right:5px solid var(--blue);background:#eff5ff;font-weight:700;font-size:18px}
-    .diagram{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:16px;padding:8px;margin-top:10px}.diagram svg{width:100%;min-width:420px;height:auto;display:block}.error{display:none;background:#fff0f0;color:#a11212;border:1px solid #ffd2d2;border-radius:14px;padding:12px;margin-top:12px}
-    .small{font-size:13px;color:var(--muted)} @media(max-width:600px){.card{padding:14px}.wrap{padding-top:14px}.primary{width:100%}}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#06111f"/>
+<title>Physics Bagrut AI</title>
+<style>
+:root{
+  --bg:#06111f;--bg2:#0b1830;--glass:rgba(255,255,255,.08);--glass2:rgba(255,255,255,.12);
+  --ink:#f8fbff;--muted:#a7b7d1;--blue:#52a8ff;--cyan:#6ff5ff;--line:rgba(173,216,255,.18);
+  --paper:#f8fbff;--paperInk:#10223a;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;font-family:Inter,Arial,"Noto Sans Hebrew",sans-serif;color:var(--ink);
+  background:
+    radial-gradient(circle at 15% 10%,rgba(60,126,255,.25),transparent 28%),
+    radial-gradient(circle at 85% 18%,rgba(0,238,255,.12),transparent 25%),
+    linear-gradient(145deg,var(--bg),var(--bg2) 55%,#07101d);
+  min-height:100vh;overflow-x:hidden
+}
+.physics-bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.physics-bg span{
+  position:absolute;font-family:Cambria,Georgia,serif;font-weight:700;color:rgba(100,214,255,.13);
+  text-shadow:0 0 18px rgba(57,191,255,.25);filter:blur(.1px);user-select:none
+}
+.physics-bg .s1{font-size:74px;top:8%;left:5%;transform:rotate(-10deg)}
+.physics-bg .s2{font-size:58px;top:21%;right:7%;transform:rotate(11deg)}
+.physics-bg .s3{font-size:92px;top:54%;left:2%;transform:rotate(7deg)}
+.physics-bg .s4{font-size:66px;bottom:8%;right:5%;transform:rotate(-8deg)}
+.physics-bg .s5{font-size:46px;top:68%;right:28%}
+.physics-bg .s6{font-size:52px;top:36%;left:24%;opacity:.55}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:auto;padding:34px 18px 72px}
+.hero{text-align:center;padding:12px 0 28px}
+.logo{
+  width:72px;height:72px;border-radius:22px;margin:auto;display:grid;place-items:center;font-size:36px;font-family:Cambria,serif;
+  background:linear-gradient(145deg,rgba(92,177,255,.95),rgba(54,98,255,.88));
+  box-shadow:0 0 0 1px rgba(255,255,255,.24),0 18px 55px rgba(51,133,255,.35),inset 0 1px 0 rgba(255,255,255,.55)
+}
+.hero h1{font-size:clamp(31px,5vw,52px);margin:14px 0 6px;letter-spacing:-.8px}
+.hero p{color:var(--muted);font-size:18px;margin:0}
+.glass{
+  background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.065));
+  border:1px solid rgba(173,216,255,.17);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 24px 70px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.08);
+  border-radius:26px;padding:20px;margin-bottom:18px
+}
+.composer{position:relative;overflow:hidden}
+.composer:before{
+  content:"";position:absolute;inset:-1px;border-radius:26px;padding:1px;
+  background:linear-gradient(120deg,rgba(111,245,255,.32),transparent 35%,rgba(82,168,255,.28));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;pointer-events:none
+}
+textarea{
+  width:100%;min-height:150px;resize:vertical;border:1px solid rgba(190,222,255,.18);border-radius:18px;
+  padding:17px 18px;background:rgba(4,13,27,.55);color:#fff;font:inherit;font-size:17px;outline:none;
+  box-shadow:inset 0 1px 8px rgba(0,0,0,.18)
+}
+textarea::placeholder{color:#7f95b6}
+textarea:focus{border-color:rgba(111,245,255,.5);box-shadow:0 0 0 4px rgba(82,168,255,.11),inset 0 1px 8px rgba(0,0,0,.18)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:13px}
+button,.upload{
+  border:1px solid rgba(183,219,255,.18);border-radius:14px;padding:11px 15px;font:inherit;font-weight:700;cursor:pointer;
+  transition:.18s ease;display:inline-flex;align-items:center;gap:7px
+}
+button:hover,.upload:hover{transform:translateY(-1px);border-color:rgba(111,245,255,.4)}
+.upload,.secondary{background:rgba(255,255,255,.075);color:#eaf4ff}.upload input{display:none}
+.primary{
+  border:0;color:white;min-width:170px;justify-content:center;margin-right:auto;
+  background:linear-gradient(135deg,#288cff,#4f63ff);box-shadow:0 9px 26px rgba(42,112,255,.28)
+}
+.primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.small{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.preview{display:none;margin-top:14px;position:relative}
+.preview img{max-height:320px;max-width:100%;border-radius:16px;border:1px solid var(--line)}
+.remove{position:absolute;top:8px;right:8px;background:rgba(7,17,31,.9);color:white;padding:6px 9px}
+.loader{display:none;text-align:center;padding:34px}
+.spinner{width:40px;height:40px;border:4px solid rgba(111,245,255,.14);border-top-color:var(--cyan);border-radius:50%;margin:0 auto 12px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#answer{display:none}
+.result-card{
+  background:rgba(248,251,255,.97);color:var(--paperInk);border:1px solid rgba(255,255,255,.45);border-radius:24px;
+  box-shadow:0 24px 60px rgba(0,0,0,.2);padding:20px;margin-bottom:18px
+}
+.topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-block;background:#e9f3ff;color:#155dc1;border-radius:999px;padding:7px 12px;font-weight:800}
+.muted{color:#67809d}
+h2{font-size:24px;margin:8px 0 14px}h3{font-size:19px;margin:18px 0 8px}
+.box{border:1px solid #dce8f5;border-radius:16px;padding:14px;margin:12px 0;background:#fbfdff}
+.step{padding:9px 0;border-bottom:1px dashed #d8e3ef}.step:last-child{border-bottom:0}
+.eq{direction:ltr;text-align:left;background:#f4f7fb;border:1px solid #e0e8f1;padding:10px 12px;border-radius:11px;margin:7px 0;font-family:Cambria,"Times New Roman",serif;font-size:18px;overflow:auto}
+.final{border-right:5px solid #2c7df0;background:#edf5ff;font-weight:800;font-size:18px}
+.diagram{overflow:auto;background:#fff;border:1px solid #dce8f5;border-radius:18px;padding:14px;margin-top:10px}
+.diagram svg{width:100%;min-width:440px;height:auto;display:block}
+.error{display:none;background:#38161b;color:#ffd6db;border:1px solid #87303c;border-radius:14px;padding:12px;margin-top:12px}
+.force-caption{font-weight:800;text-align:center;color:#1b3351;margin:4px 0 8px}
+@media(max-width:650px){
+  .wrap{padding:18px 12px 56px}.glass,.result-card{padding:14px;border-radius:20px}.primary{width:100%;margin-right:0}
+  .physics-bg .s6,.physics-bg .s5{display:none}
+}
+</style>
 </head>
 <body>
-<div class="wrap">
-  <div class="hero"><div class="logo">∑</div><h1>Physics Bagrut AI</h1><p>שולחים שאלה — מקבלים פתרון מסודר כמו בבגרות, כולל תרשימים.</p></div>
+<div class="physics-bg" aria-hidden="true">
+  <span class="s1">λ</span><span class="s2">Δ</span><span class="s3">Ω</span>
+  <span class="s4">μ</span><span class="s5">ΣF = ma</span><span class="s6">φ</span>
+</div>
 
-  <div class="card">
-    <textarea id="question" placeholder="כתוב כאן את השאלה, למשל: גוף שמסתו 2 ק״ג מונח על משטח משופע...&#10;אפשר גם פשוט להעלות צילום של השאלה."></textarea>
+<div class="wrap">
+  <div class="hero">
+    <div class="logo">Φ</div>
+    <h1>Physics Bagrut AI</h1>
+    <p>שאלה בפיזיקה נכנסת. פתרון מסודר לבגרות יוצא.</p>
+  </div>
+
+  <div class="glass composer">
+    <textarea id="question" placeholder="כתוב כאן את השאלה או פשוט העלה צילום ברור שלה…"></textarea>
     <div class="row">
       <label class="upload">📷 העלאת תמונה<input id="image" type="file" accept="image/png,image/jpeg,image/webp"/></label>
-      <button class="secondary" id="example">נסה דוגמה</button>
+      <button class="secondary" id="example">⚡ נסה דוגמה</button>
       <label class="small"><input type="checkbox" id="short"/> פתרון קצר</label>
       <button class="primary" id="solve">פתור כמו בבגרות</button>
     </div>
@@ -38,18 +127,19 @@
     <div class="error" id="error"></div>
   </div>
 
-  <div class="card loader" id="loader"><div class="spinner"></div><b>קורא את השאלה, בונה תרשים ובודק את החישוב…</b></div>
+  <div class="glass loader" id="loader"><div class="spinner"></div><b>קורא את השאלה, בונה תרשים ובודק את החישוב…</b></div>
 
   <div id="answer">
-    <div class="card">
+    <div class="result-card">
       <div class="topline"><span class="pill" id="topic"></span><span class="muted" id="request"></span></div>
       <div id="givens"></div><div id="note"></div>
     </div>
     <div id="sections"></div>
-    <div class="card" id="visualCard" style="display:none"><h2>תרשימים</h2><div id="diagrams"></div></div>
-    <div class="card" id="checksCard" style="display:none"><h2>בדיקה לפני הגשה</h2><div id="checks"></div></div>
+    <div class="result-card" id="visualCard" style="display:none"><h2>תרשימים</h2><div id="diagrams"></div></div>
+    <div class="result-card" id="checksCard" style="display:none"><h2>בדיקה לפני הגשה</h2><div id="checks"></div></div>
   </div>
 </div>
+
 <script>
 const q=document.getElementById('question'), image=document.getElementById('image'), solve=document.getElementById('solve');
 const preview=document.getElementById('preview'), previewImg=document.getElementById('previewImg'), loader=document.getElementById('loader'), error=document.getElementById('error'), answer=document.getElementById('answer');
@@ -64,10 +154,39 @@ function list(title,items){
   if(!items||!items.length)return '';
   return '<div class="box"><h3>'+esc(title)+'</h3>'+items.map(x=>'<div class="step">'+esc(x)+'</div>').join('')+'</div>';
 }
+function dirVector(d){
+  return {
+    up:[0,-1],down:[0,1],left:[-1,0],right:[1,0],
+    'up-left':[-.72,-.72],'up-right':[.72,-.72],
+    'down-left':[-.72,.72],'down-right':[.72,.72]
+  }[d]||[0,-1];
+}
+function renderForceDiagram(fd){
+  if(!fd||!Array.isArray(fd.bodies)||!fd.bodies.length)return '';
+  const W=700,H=360,n=fd.bodies.length,spacing=W/(n+1),bodyW=92,bodyH=72,cy=185;
+  let parts=['<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">','<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8.5" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#17324f"/></marker></defs>','<rect width="100%" height="100%" fill="#fff"/>'];
+  fd.bodies.forEach((b,i)=>{
+    const cx=spacing*(i+1);
+    parts.push('<rect x="'+(cx-bodyW/2)+'" y="'+(cy-bodyH/2)+'" width="'+bodyW+'" height="'+bodyH+'" rx="8" fill="#f8fbff" stroke="#17324f" stroke-width="3"/>');
+    parts.push('<text x="'+cx+'" y="'+(cy+7)+'" text-anchor="middle" font-size="25" font-family="Arial" fill="#10223a">'+esc(b.label||'גוף')+'</text>');
+    (b.forces||[]).forEach((f,idx)=>{
+      const v=dirVector(f.direction),len=(Math.abs(v[0])>0&&Math.abs(v[1])>0)?78:92;
+      const sx=cx+v[0]*(bodyW/2+4),sy=cy+v[1]*(bodyH/2+4),ex=cx+v[0]*(bodyW/2+len),ey=cy+v[1]*(bodyH/2+len);
+      parts.push('<line x1="'+sx+'" y1="'+sy+'" x2="'+ex+'" y2="'+ey+'" stroke="#17324f" stroke-width="4" marker-end="url(#arr)"/>');
+      let tx=ex+v[0]*24,ty=ey+v[1]*24+6;
+      if(Math.abs(v[0])<.1) tx+=28+(idx%2)*8;
+      if(Math.abs(v[1])<.1) ty-=10+(idx%2)*18;
+      tx=Math.max(28,Math.min(W-28,tx));ty=Math.max(28,Math.min(H-24,ty));
+      parts.push('<text x="'+tx+'" y="'+ty+'" text-anchor="middle" font-size="22" font-weight="700" font-family="Cambria,Arial" fill="#10223a">'+esc(f.label||'F')+'</text>');
+    });
+  });
+  parts.push('</svg>');
+  return '<div class="force-caption">'+esc(fd.title||'תרשים כוחות')+'</div><div class="diagram">'+parts.join('')+'</div>';
+}
 image.onchange=()=>{
   const f=image.files[0]; if(!f)return;
   if(f.size>8*1024*1024){showError('התמונה גדולה מדי. עד 8MB.');image.value='';return;}
-  const r=new FileReader(); r.onload=()=>{imageDataUrl=r.result;previewImg.src=imageDataUrl;preview.style.display='block'}; r.readAsDataURL(f);
+  const r=new FileReader();r.onload=()=>{imageDataUrl=r.result;previewImg.src=imageDataUrl;preview.style.display='block'};r.readAsDataURL(f);
 };
 document.getElementById('remove').onclick=()=>{image.value='';imageDataUrl='';preview.style.display='none'};
 document.getElementById('example').onclick=()=>{q.value='גוף שמסתו 2 ק״ג מונח על משטח אופקי. מופעל עליו כוח אופקי של 10 N. מקדם החיכוך הקינטי הוא 0.2. חשב את תאוצת הגוף וצייר תרשים כוחות.'};
@@ -80,7 +199,7 @@ function render(r){
   document.getElementById('note').innerHTML=r.note?'<div class="box"><b>הערה:</b> '+esc(r.note)+'</div>':'';
   const sections=document.getElementById('sections');sections.innerHTML='';
   (r.sections||[]).forEach((s,i)=>{
-    const c=document.createElement('div');c.className='card';
+    const c=document.createElement('div');c.className='result-card';
     c.innerHTML='<h2>'+esc(s.title||('סעיף '+(i+1)))+'</h2>'+
       (s.principle?'<div class="box"><b>העיקרון:</b> '+esc(s.principle)+'</div>':'')+
       list('דרך הפתרון',s.steps)+
@@ -89,12 +208,12 @@ function render(r){
       (s.answer?'<div class="box final">תשובה סופית: '+esc(s.answer)+'</div>':'');
     sections.appendChild(c);
   });
-  const dg=cleanSvg(r.diagramSvg||''), sk=cleanSvg(r.sketchSvg||'');
-  document.getElementById('visualCard').style.display=(dg||sk)?'block':'none';
-  document.getElementById('diagrams').innerHTML=(dg?'<h3>תרשים כוחות</h3><div class="diagram">'+dg+'</div>':'')+(sk?'<h3>שרטוט עזר</h3><div class="diagram">'+sk+'</div>':'');
+  const force=renderForceDiagram(r.forceDiagram),sk=cleanSvg(r.sketchSvg||'');
+  document.getElementById('visualCard').style.display=(force||sk)?'block':'none';
+  document.getElementById('diagrams').innerHTML=force+(sk?'<h3>שרטוט עזר</h3><div class="diagram">'+sk+'</div>':'');
   document.getElementById('checksCard').style.display=(r.checks||[]).length?'block':'none';
   document.getElementById('checks').innerHTML=(r.checks||[]).map(x=>'<div class="step">✓ '+esc(x)+'</div>').join('');
-  answer.style.display='block'; answer.scrollIntoView({behavior:'smooth',block:'start'});
+  answer.style.display='block';answer.scrollIntoView({behavior:'smooth',block:'start'});
 }
 solve.onclick=async()=>{
   error.style.display='none';answer.style.display='none';
@@ -102,7 +221,7 @@ solve.onclick=async()=>{
   setLoading(true);
   try{
     const res=await fetch('/api/solve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q.value,imageDataUrl,detail:document.getElementById('short').checked?'short':'full'})});
-    const data=await res.json(); if(!res.ok)throw new Error(data.error||'שגיאה');
+    const data=await res.json();if(!res.ok)throw new Error(data.error||'שגיאה');
     render(data.result);
   }catch(e){showError(e.message||'אירעה שגיאה.')}
   finally{setLoading(false)}
